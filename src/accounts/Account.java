@@ -6,5 +6,5 @@ public interface Account {
     double getBalance();
     String getDescription();
     void close();
-
+    double exchange(double amount);
 }
