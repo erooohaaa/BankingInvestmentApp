@@ -67,7 +67,7 @@ public class ClientApp {
                                 amt, from, converted, to);
                     }
                 }
-                case 5 -> {
+                case 5  -> {
                     if (currentAccount != null) {
                         System.out.println("Account: " + currentAccount.getDescription());
                         System.out.println("Balance: " + currentAccount.getBalance());
