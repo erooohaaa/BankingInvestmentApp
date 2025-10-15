@@ -55,12 +55,12 @@ public class ClientApp {
                     double amt = sc.nextDouble();
 
                     if (currentAccount != null) {
-                        // Используем метод exchange аккаунта (с возможностью декораторов)
+
                         double converted = currentAccount.exchange(amt, from, to);
                         System.out.printf("Via Account Exchange: %.2f %s = %.2f %s%n",
                                 amt, from, converted, to);
                     } else {
-                        // Используем прямой CurrencyAdapter если аккаунт не открыт
+
                         CurrencyAdapter adapter = new CurrencyAdapter();
                         double converted = adapter.convert(from, to, amt);
                         System.out.printf("Direct Conversion: %.2f %s = %.2f %s%n",
