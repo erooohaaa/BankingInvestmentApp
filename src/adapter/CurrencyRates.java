@@ -1,7 +1,6 @@
 package adapter;
 
 public class CurrencyRates {
-
     public static double getRate(String from, String to) {
         if (from.equals("USD") && to.equals("KZT")) return 538.0;
         if (from.equals("EUR") && to.equals("KZT")) return 625.0;

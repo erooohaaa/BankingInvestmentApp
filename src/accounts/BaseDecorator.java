@@ -9,11 +9,19 @@ public abstract class BaseDecorator implements Account {
 
     @Override
     public void deposit(double amount) {
+        if (amount <= 0) {
+            System.out.println("Deposit amount must be positive");
+            return;
+        }
         wrappee.deposit(amount);
     }
 
     @Override
     public void withdraw(double amount) {
+        if (amount <= 0) {
+            System.out.println("Withdrawal amount must be positive");
+            return;
+        }
         wrappee.withdraw(amount);
     }
 
@@ -33,7 +41,7 @@ public abstract class BaseDecorator implements Account {
     }
 
     @Override
-    public double exchange(double amount) {
-        return wrappee.exchange(amount);
+    public double exchange(double amount, String fromCurrency, String toCurrency) {
+        return wrappee.exchange(amount, fromCurrency, toCurrency);
     }
 }

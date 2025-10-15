@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class ClientApp {
     public void run() {
         BankingFacade facade = new BankingFacade();
-        CurrencyAdapter adapter = new CurrencyAdapter();
+        Account currentAccount = null;
 
         Scanner sc = new Scanner(System.in);
         while (true) {
@@ -19,22 +19,23 @@ public class ClientApp {
             System.out.println("1. Open Account with Benefits");
             System.out.println("2. Open Safe Investment Account");
             System.out.println("3. Build Portfolio");
-            System.out.println("4. Convert Currency");
-            System.out.println("5. Exit");
+            System.out.println("4. Currency Exchange");
+            System.out.println("5. Show Current Account Info");
+            System.out.println("6. Exit");
             System.out.print("Choose: ");
             int choice = sc.nextInt();
             sc.nextLine();
 
             switch (choice) {
                 case 1 -> {
-                    Account a = facade.openAccountWithBenefits();
-                    a.deposit(1000);
-                    System.out.println("Balance: " + a.getBalance());
+                    currentAccount = facade.openAccountWithBenefits();
+                    currentAccount.deposit(1000);
+                    System.out.println("Balance: " + currentAccount.getBalance());
                 }
                 case 2 -> {
-                    Account a = facade.investWithSafetyMode();
-                    a.deposit(2000);
-                    System.out.println("Balance: " + a.getBalance());
+                    currentAccount = facade.investWithSafetyMode();
+                    currentAccount.deposit(2000);
+                    System.out.println("Balance: " + currentAccount.getBalance());
                 }
                 case 3 -> {
                     Portfolio p = new PortfolioBuilder()
@@ -52,11 +53,29 @@ public class ClientApp {
                     String to = sc.nextLine().trim().toUpperCase();
                     System.out.print("Amount: ");
                     double amt = sc.nextDouble();
-                    double converted = adapter.convert(from, to, amt);
-                    System.out.printf("%.2f %s = %.2f %s%n", amt, from, converted, to);
-                }
 
+                    if (currentAccount != null) {
+                        // Используем метод exchange аккаунта (с возможностью декораторов)
+                        double converted = currentAccount.exchange(amt, from, to);
+                        System.out.printf("Via Account Exchange: %.2f %s = %.2f %s%n",
+                                amt, from, converted, to);
+                    } else {
+                        // Используем прямой CurrencyAdapter если аккаунт не открыт
+                        CurrencyAdapter adapter = new CurrencyAdapter();
+                        double converted = adapter.convert(from, to, amt);
+                        System.out.printf("Direct Conversion: %.2f %s = %.2f %s%n",
+                                amt, from, converted, to);
+                    }
+                }
                 case 5 -> {
+                    if (currentAccount != null) {
+                        System.out.println("Account: " + currentAccount.getDescription());
+                        System.out.println("Balance: " + currentAccount.getBalance());
+                    } else {
+                        System.out.println("No account opened!");
+                    }
+                }
+                case 6 -> {
                     System.out.println("Goodbye!");
                     return;
                 }
