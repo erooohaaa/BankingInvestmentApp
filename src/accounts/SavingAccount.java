@@ -5,14 +5,14 @@ public class SavingAccount implements Account {
     @Override
     public void deposit(double amount) {
         balance += amount;
-        System.out.println("Deposited " + amount+ "Into Saving Account");
+        System.out.println("Deposited " + amount+ " Into Saving Account");
 
     }
     @Override
     public void withdraw(double amount) {
         if(amount <= balance) {
             balance -= amount;
-            System.out.println("Withdrawn " + amount+ "From Saving Account");
+            System.out.println("Withdrawn " + amount+ " From Saving Account");
         }
 
 

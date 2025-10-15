@@ -5,13 +5,13 @@ public class InvestmentAccount implements Account {
     @Override
     public void deposit(double amount) {
         balance += amount;
-        System.out.println("Invested " + amount+ "Into Investment Account");
+        System.out.println("Invested " + amount+ " Into Investment Account");
     }
     @Override
     public void withdraw(double amount) {
         if (amount <= balance) {
             balance -= amount;
-            System.out.println("Withdrawn " + amount + "From Investment Account");
+            System.out.println("Withdrawn " + amount + " From Investment Account");
 
         } else {
             System.out.println("Insufficient investment balance");
