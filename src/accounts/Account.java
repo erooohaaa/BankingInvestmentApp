@@ -7,4 +7,5 @@ public interface Account {
     String getDescription();
     void close();
     double exchange(double amount, String fromCurrency, String toCurrency);
+    User getUser();
 }

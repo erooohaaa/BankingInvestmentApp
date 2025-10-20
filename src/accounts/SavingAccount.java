@@ -1,19 +1,14 @@
 package accounts;
 
 import adapter.CurrencyAdapter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SavingAccount implements Account {
     private double balance = 0;
     private User user;
-    private List<Transaction> transactionHistory;
 
     public SavingAccount(User user) {
         this.user = user;
-        this.transactionHistory = new ArrayList<>();
         user.saveToFile("SavingAccount");
-        addTransaction("ACCOUNT_CREATION", 0, "Account opened");
     }
 
     @Override
@@ -23,7 +18,6 @@ public class SavingAccount implements Account {
             return;
         }
         balance += amount;
-        addTransaction("DEPOSIT", amount, "Cash deposit");
         System.out.println("Deposited " + amount + " Into Saving Account. New balance: " + balance);
     }
 
@@ -35,11 +29,7 @@ public class SavingAccount implements Account {
         }
         if (amount <= balance) {
             balance -= amount;
-            addTransaction("WITHDRAW", amount, "Cash withdrawal");
-
-            if (!Thread.currentThread().getStackTrace()[2].getMethodName().equals("transfer")) {
-                System.out.println("Withdrawn " + amount + " From Saving Account. New balance: " + balance);
-            }
+            System.out.println("Withdrawn " + amount + " From Saving Account. New balance: " + balance);
         } else {
             System.out.println("Insufficient Funds");
         }
@@ -58,7 +48,6 @@ public class SavingAccount implements Account {
     @Override
     public void close() {
         System.out.println("Closing Saving Account. Final balance: " + balance);
-        addTransaction("ACCOUNT_CLOSED", 0, "Account closed with balance: " + balance);
         balance = 0;
     }
 
@@ -66,49 +55,12 @@ public class SavingAccount implements Account {
     public double exchange(double amount, String fromCurrency, String toCurrency) {
         CurrencyAdapter adapter = new CurrencyAdapter();
         double converted = adapter.convert(fromCurrency, toCurrency, amount);
-        addTransaction("EXCHANGE", amount, "Currency exchange: " + fromCurrency + " to " + toCurrency);
         System.out.printf("Exchanged %.2f %s to %.2f %s%n", amount, fromCurrency, converted, toCurrency);
         return converted;
     }
 
-    public void displayTransactionHistory() {
-        System.out.println("\n=== TRANSACTION HISTORY ===");
-        System.out.println("Account: " + getDescription());
-        if (transactionHistory.isEmpty()) {
-            System.out.println("No transactions yet.");
-        } else {
-            for (Transaction transaction : transactionHistory) {
-                System.out.println("  " + transaction);
-            }
-        }
-    }
-
-    private void addTransaction(String type, double amount, String description) {
-        Transaction transaction = new Transaction(type, amount, balance, description);
-        transactionHistory.add(transaction);
-        saveTransactionToFile(transaction);
-    }
-
-    private void saveTransactionToFile(Transaction transaction) {
-        try {
-            java.io.File file = new java.io.File("transactions.txt");
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            java.io.FileWriter writer = new java.io.FileWriter("transactions.txt", true);
-            writer.write(user.getId() + "|" + getDescription() + "|" + transaction.toFileString() + "\n");
-            writer.close();
-        } catch (java.io.IOException e) {
-            System.out.println("Error saving transaction: " + e.getMessage());
-        }
-    }
-
+    @Override
     public User getUser() {
         return user;
-    }
-
-    public List<Transaction> getTransactionHistory() {
-        return new ArrayList<>(transactionHistory);
     }
 }

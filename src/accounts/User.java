@@ -12,14 +12,25 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.id = id;
-        this.email = email;
+        setEmail(email);
     }
-
 
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
     public String getId() { return id; }
     public String getEmail() { return email; }
+
+    public void setEmail(String email) {
+        if (!isValidEmail(email)) {
+            throw new IllegalArgumentException("Invalid email format: " + email);
+        }
+        this.email = email;
+    }
+
+    private boolean isValidEmail(String email) {
+
+        return email != null && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    }
 
     @Override
     public String toString() {

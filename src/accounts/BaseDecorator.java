@@ -44,4 +44,9 @@ public abstract class BaseDecorator implements Account {
     public double exchange(double amount, String fromCurrency, String toCurrency) {
         return wrappee.exchange(amount, fromCurrency, toCurrency);
     }
+
+    @Override
+    public User getUser() {
+        return wrappee.getUser();
+    }
 }

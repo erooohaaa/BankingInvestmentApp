@@ -7,7 +7,7 @@ public class BankingFacade {
 
     public Account openAccountWithBenefits(User user) {
         Account acc = AccountFactory.createAccount("savings", user);
-        acc = new RewardPointsDecorator(new InsuranceDecorator(acc));
+        acc = new RewardPointsDecorator(acc);
         System.out.println("Opened: " + acc.getDescription());
         return acc;
     }

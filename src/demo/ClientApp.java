@@ -6,18 +6,18 @@ import builder.PortfolioBuilder;
 import facade.BankingFacade;
 import accounts.Account;
 import accounts.User;
-import services.TransferService;
 
 import java.util.Scanner;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ClientApp {
     private AdminPanel adminPanel;
-    private TransferService transferService;
+    private Set<String> usedIds = new HashSet<>(); // Храним использованные ID
 
     public void run() {
         BankingFacade facade = new BankingFacade();
         adminPanel = new AdminPanel();
-        transferService = new TransferService(adminPanel);
         Account currentAccount = null;
 
         Scanner sc = new Scanner(System.in);
@@ -30,11 +30,10 @@ public class ClientApp {
             System.out.println("3. Build Portfolio");
             System.out.println("4. Currency Exchange");
             System.out.println("5. Show Current Account Info");
-            System.out.println("6. Show Transaction History");
-            System.out.println("7. Transfer Money to Another Account");
-            System.out.println("8. Show Transfer History");
-            System.out.println("9. Admin - Search Account by ID");
-            System.out.println("10. Admin - Show All Active Accounts");
+            System.out.println("6. Deposit Money");
+            System.out.println("7. Withdraw Money");
+            System.out.println("8. Admin - Search Account by ID");
+            System.out.println("9. Admin - Show All Active Accounts");
             System.out.println("0. Exit");
             System.out.print("Choose: ");
             int choice = sc.nextInt();
@@ -43,26 +42,42 @@ public class ClientApp {
             switch (choice) {
                 case 1 -> {
                     User user = createUser(sc);
-                    currentAccount = facade.openAccountWithBenefits(user);
-                    adminPanel.addActiveAccount(currentAccount);
-                    currentAccount.deposit(1000);
-                    System.out.println("Balance: " + currentAccount.getBalance());
+                    if (user != null) {
+                        currentAccount = facade.openAccountWithBenefits(user);
+                        adminPanel.addActiveAccount(currentAccount);
+                        usedIds.add(user.getId()); // Добавляем ID в использованные
+                        System.out.println("Account opened successfully!");
+                    }
                 }
                 case 2 -> {
                     User user = createUser(sc);
-                    currentAccount = facade.investWithSafetyMode(user);
-                    adminPanel.addActiveAccount(currentAccount);
-                    currentAccount.deposit(2000);
-                    System.out.println("Balance: " + currentAccount.getBalance());
+                    if (user != null) {
+                        currentAccount = facade.investWithSafetyMode(user);
+                        adminPanel.addActiveAccount(currentAccount);
+                        usedIds.add(user.getId()); // Добавляем ID в использованные
+                        System.out.println("Account opened successfully!");
+                    }
                 }
                 case 3 -> {
                     System.out.print("Enter portfolio owner name: ");
                     String owner = sc.nextLine();
+
+                    System.out.print("Enter stocks amount: ");
+                    double stocks = sc.nextDouble();
+
+                    System.out.print("Enter bonds amount: ");
+                    double bonds = sc.nextDouble();
+
+                    System.out.print("Enter crypto amount: ");
+                    double crypto = sc.nextDouble();
+
+                    sc.nextLine();
+
                     Portfolio p = new PortfolioBuilder()
                             .setOwner(owner)
-                            .setStocks(5000)
-                            .setBonds(2000)
-                            .setCrypto(1000)
+                            .setStocks(stocks)
+                            .setBonds(bonds)
+                            .setCrypto(crypto)
                             .build();
                     System.out.println(p);
                 }
@@ -95,48 +110,34 @@ public class ClientApp {
                 }
                 case 6 -> {
                     if (currentAccount != null) {
-                        try {
-                            java.lang.reflect.Method displayHistory =
-                                    currentAccount.getClass().getMethod("displayTransactionHistory");
-                            displayHistory.invoke(currentAccount);
-                        } catch (Exception e) {
-                            System.out.println("Transaction history not available for this account.");
-                        }
+                        System.out.print("Enter deposit amount: ");
+                        double depositAmount = sc.nextDouble();
+                        sc.nextLine();
+
+                        currentAccount.deposit(depositAmount);
+                        System.out.println("Balance: " + currentAccount.getBalance());
                     } else {
                         System.out.println("No account opened!");
                     }
                 }
                 case 7 -> {
                     if (currentAccount != null) {
-                        System.out.print("Enter recipient account ID: ");
-                        String recipientId = sc.nextLine();
-                        System.out.print("Enter transfer amount: ");
-                        double transferAmount = sc.nextDouble();
-                        sc.nextLine(); // consume newline
+                        System.out.print("Enter withdrawal amount: ");
+                        double withdrawAmount = sc.nextDouble();
+                        sc.nextLine();
 
-                        transferService.transfer(currentAccount, recipientId, transferAmount);
-                    } else {
-                        System.out.println("No account opened! Please open an account first.");
-                    }
-                }
-                case 8 -> {
-                    if (currentAccount != null) {
-                        String currentUserId = getUserId(currentAccount);
-                        if (currentUserId != null) {
-                            transferService.displayTransferHistory(currentUserId);
-                        } else {
-                            System.out.println("Cannot identify current account ID");
-                        }
+                        currentAccount.withdraw(withdrawAmount);
+                        System.out.println("Balance: " + currentAccount.getBalance());
                     } else {
                         System.out.println("No account opened!");
                     }
                 }
-                case 9 -> {
+                case 8 -> {
                     System.out.print("Enter user ID to search: ");
                     String searchId = sc.nextLine();
                     adminPanel.searchAccountByID(searchId);
                 }
-                case 10 -> {
+                case 9 -> {
                     adminPanel.displayAllActiveAccounts();
                 }
                 case 0 -> {
@@ -148,32 +149,49 @@ public class ClientApp {
         }
     }
 
-    private String getUserId(Account account) {
-        try {
-            java.lang.reflect.Method getUserMethod = account.getClass().getMethod("getUser");
-            Object userObj = getUserMethod.invoke(account);
-
-            if (userObj != null) {
-                java.lang.reflect.Method getIdMethod = userObj.getClass().getMethod("getId");
-                return (String) getIdMethod.invoke(userObj);
-            }
-        } catch (Exception e) {
-            System.out.println("Error getting user ID: " + e.getMessage());
-        }
-        return null;
-    }
-
     private User createUser(Scanner sc) {
         System.out.println("\n=== Enter User Details ===");
         System.out.print("Enter first name: ");
         String firstName = sc.nextLine();
         System.out.print("Enter last name: ");
         String lastName = sc.nextLine();
-        System.out.print("Enter ID: ");
-        String id = sc.nextLine();
-        System.out.print("Enter email: ");
-        String email = sc.nextLine();
 
-        return new User(firstName, lastName, id, email);
+        // Генерация уникального ID
+        String id = generateUniqueId();
+        System.out.println("Your unique ID: " + id);
+
+        String email;
+        while (true) {
+            System.out.print("Enter email: ");
+            email = sc.nextLine();
+
+            if (isValidEmail(email)) {
+                break;
+            } else {
+                System.out.println("Invalid email format! Please enter a valid email (e.g., user@example.com)");
+            }
+        }
+
+        try {
+            User user = new User(firstName, lastName, id, email);
+            return user;
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error creating user: " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    private String generateUniqueId() {
+        String id;
+        do {
+
+            id = String.valueOf((int)(Math.random() * 900000) + 100000);
+        } while (usedIds.contains(id));
+        return id;
+    }
+
+    private boolean isValidEmail(String email) {
+        return email != null && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     }
 }
