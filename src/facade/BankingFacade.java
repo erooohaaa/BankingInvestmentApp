@@ -18,9 +18,4 @@ public class BankingFacade {
         System.out.println("Opened: " + acc.getDescription());
         return acc;
     }
-
-    public void closeAccount(Account account) {
-        account.close();
-        System.out.println("Account successfully closed.");
-    }
 }

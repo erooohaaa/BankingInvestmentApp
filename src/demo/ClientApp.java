@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class ClientApp {
     private AdminPanel adminPanel;
-    private Set<String> usedIds = new HashSet<>(); // Храним использованные ID
+    private Set<String> usedIds = new HashSet<>();
 
     public void run() {
         BankingFacade facade = new BankingFacade();
@@ -45,7 +45,7 @@ public class ClientApp {
                     if (user != null) {
                         currentAccount = facade.openAccountWithBenefits(user);
                         adminPanel.addActiveAccount(currentAccount);
-                        usedIds.add(user.getId()); // Добавляем ID в использованные
+                        usedIds.add(user.getId());
                         System.out.println("Account opened successfully!");
                     }
                 }
@@ -54,7 +54,7 @@ public class ClientApp {
                     if (user != null) {
                         currentAccount = facade.investWithSafetyMode(user);
                         adminPanel.addActiveAccount(currentAccount);
-                        usedIds.add(user.getId()); // Добавляем ID в использованные
+                        usedIds.add(user.getId());
                         System.out.println("Account opened successfully!");
                     }
                 }
@@ -156,7 +156,7 @@ public class ClientApp {
         System.out.print("Enter last name: ");
         String lastName = sc.nextLine();
 
-        // Генерация уникального ID
+
         String id = generateUniqueId();
         System.out.println("Your unique ID: " + id);
 
